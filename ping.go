@@ -34,8 +34,10 @@ func (self *Ping) Run() {
 
 	go func() {
 		defer wg.Done()
-		v.ping()
+		self.ping()
 	}()
+
+	wg.Wait()
 }
 
 func (self *Ping) connect() (err error) {

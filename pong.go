@@ -34,6 +34,8 @@ func (self *Pong) Run() {
 		self.accept()
 	}()
 
+	wg.Wait()
+
 	for _, conn := range self.clients {
 
 		conn.Close()

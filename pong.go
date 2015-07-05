@@ -1,5 +1,13 @@
 package main
 
+import (
+	"bufio"
+	"fmt"
+	"log"
+	"net"
+	"sync"
+)
+
 type Pong struct {
 	App
 	listener net.Listener
@@ -87,15 +95,15 @@ func (self *Pong) pong(conn net.Conn) {
 			return
 		}
 
-		log.Println("[DATA]", remote, "=>", local, line)
-		fmt.Println("[DATA]", remote, "=>", local, line)
+		log.Println("[DATA]", remote, "=>", local, ":", line)
+		fmt.Println("[DATA]", remote, "=>", local, ":", line)
 
 		// pong
-		fmt.Fprintln(writer, "[DATA]", local, "=>", remote, "ping", now)
+		fmt.Fprintln(writer, line)
 		writer.Flush() // Don't forget to flush!
 
-		log.Println("[DATA]", local, "=>", remote, "ping", now)
-		fmt.Println("[DATA]", local, "=>", remote, "ping", now)
+		log.Println("[DATA]", local, "=>", remote, ":", line)
+		fmt.Println("[DATA]", local, "=>", remote, ":", line)
 
 	}
 }

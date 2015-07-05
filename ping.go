@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"sync"
 	"time"
 )
 
@@ -81,15 +82,15 @@ func (self *Ping) ping() {
 		return
 	}
 
-	remote := self.RemoteAddr().String()
-	local := self.LocalAddr().String()
+	remote := self.conn.RemoteAddr().String()
+	local := self.conn.LocalAddr().String()
 
 	for now := range time.Tick(1 * time.Second) {
 
-		fmt.Fprintln(writer, "[DATA]", local, "=>", remote, "ping", now)
+		fmt.Fprintln(writer, now)
 		writer.Flush() // Don't forget to flush!
 
-		log.Println("[DATA]", local, "=>", remote, "ping", now)
-		fmt.Println("[DATA]", local, "=>", remote, "ping", now)
+		log.Println("[DATA]", local, "=>", remote, ":", now)
+		fmt.Println("[DATA]", local, "=>", remote, ":", now)
 	}
 }

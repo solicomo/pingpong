@@ -3,8 +3,10 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"log"
 	"net"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -52,8 +54,8 @@ func (self *Ping) read() {
 	reader := bufio.NewReader(self.conn)
 
 	if reader == nil {
-		log.Println("[ERRO]", "can not read")
-		fmt.Println("[ERRO]", "can not read")
+		log.Println("[ERRO]", "can not read from", self.config.Host+":"+self.config.Port)
+		fmt.Println("[ERRO]", "can not read from", self.config.Host+":"+self.config.Port)
 		return
 	}
 
@@ -63,14 +65,20 @@ func (self *Ping) read() {
 	for {
 		line, err := reader.ReadString('\n')
 
-		if err != nil {
-			log.Println("[ERRO]", err)
-			fmt.Println("[ERRO]", err)
+		if err == io.EOF {
+			log.Println("[INFO]", remote, "=>", local, ":", "closed")
+			fmt.Println("[INFO]", remote, "=>", local, ":", "closed")
 			return
 		}
 
-		log.Println("[DATA]", remote, "=>", local, line)
-		fmt.Println("[DATA]", remote, "=>", local, line)
+		if err != nil {
+			log.Println("[ERRO]", remote, "=>", local, ":", err)
+			fmt.Println("[ERRO]", remote, "=>", local, ":", err)
+			return
+		}
+
+		log.Println("[RECV]", remote, "=>", local, ":", line)
+		fmt.Println("[RECV]", remote, "=>", local, ":", line)
 	}
 }
 
@@ -79,8 +87,8 @@ func (self *Ping) ping() {
 	writer := bufio.NewWriter(self.conn)
 
 	if writer == nil {
-		log.Println("[ERRO]", "can not write")
-		fmt.Println("[ERRO]", "can not write")
+		log.Println("[ERRO]", "can not write to", self.config.Host+":"+self.config.Port)
+		fmt.Println("[ERRO]", "can not write to", self.config.Host+":"+self.config.Port)
 		return
 	}
 
@@ -89,10 +97,12 @@ func (self *Ping) ping() {
 
 	for now := range time.Tick(1 * time.Second) {
 
-		fmt.Fprintln(writer, now)
+		line := strconv.Itoa(now.Unix())
+
+		fmt.Fprintln(writer, line)
 		writer.Flush() // Don't forget to flush!
 
-		log.Println("[DATA]", local, "=>", remote, ":", now)
-		fmt.Println("[DATA]", local, "=>", remote, ":", now)
+		log.Println("[SEND]", local, "=>", remote, ":", line)
+		fmt.Println("[SEND]", local, "=>", remote, ":", line)
 	}
 }

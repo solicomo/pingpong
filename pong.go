@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"sync"
@@ -74,16 +75,16 @@ func (self *Pong) pong(conn net.Conn) {
 	reader := bufio.NewReader(conn)
 
 	if reader == nil {
-		log.Println("[ERRO]", "can not read")
-		fmt.Println("[ERRO]", "can not read")
+		log.Println("[ERRO]", "can not read from", remote)
+		fmt.Println("[ERRO]", "can not read from", remote)
 		return
 	}
 
 	writer := bufio.NewWriter(conn)
 
 	if writer == nil {
-		log.Println("[ERRO]", "can not write")
-		fmt.Println("[ERRO]", "can not write")
+		log.Println("[ERRO]", "can not write to", remote)
+		fmt.Println("[ERRO]", "can not write to", remote)
 		return
 	}
 
@@ -91,21 +92,27 @@ func (self *Pong) pong(conn net.Conn) {
 		// ping
 		line, err := reader.ReadString('\n')
 
-		if err != nil {
-			log.Println("[ERRO]", err)
-			fmt.Println("[ERRO]", err)
+		if err == io.EOF {
+			log.Println("[INFO]", remote, "=>", local, ":", "closed")
+			fmt.Println("[INFO]", remote, "=>", local, ":", "closed")
 			return
 		}
 
-		log.Println("[DATA]", remote, "=>", local, ":", line)
-		fmt.Println("[DATA]", remote, "=>", local, ":", line)
+		if err != nil {
+			log.Println("[ERRO]", remote, "=>", local, ":", err)
+			fmt.Println("[ERRO]", remote, "=>", local, ":", err)
+			return
+		}
+
+		log.Println("[RECV]", remote, "=>", local, ":", line)
+		fmt.Println("[RECV]", remote, "=>", local, ":", line)
 
 		// pong
 		fmt.Fprintln(writer, line)
 		writer.Flush() // Don't forget to flush!
 
-		log.Println("[DATA]", local, "=>", remote, ":", line)
-		fmt.Println("[DATA]", local, "=>", remote, ":", line)
+		log.Println("[SEND]", local, "=>", remote, ":", line)
+		fmt.Println("[SEND]", local, "=>", remote, ":", line)
 
 	}
 }

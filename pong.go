@@ -108,7 +108,7 @@ func (self *Pong) pong(conn net.Conn) {
 		fmt.Println("[RECV]", remote, "=>", local, ":", line)
 
 		// pong
-		fmt.Fprintln(writer, line)
+		fmt.Fprint(writer, line)
 		writer.Flush() // Don't forget to flush!
 
 		log.Println("[SEND]", local, "=>", remote, ":", line)

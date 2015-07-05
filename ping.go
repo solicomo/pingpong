@@ -97,7 +97,7 @@ func (self *Ping) ping() {
 
 	for now := range time.Tick(1 * time.Second) {
 
-		line := strconv.Itoa(now.Unix())
+		line := strconv.FormatInt(now.Unix(), 10)
 
 		fmt.Fprintln(writer, line)
 		writer.Flush() // Don't forget to flush!
